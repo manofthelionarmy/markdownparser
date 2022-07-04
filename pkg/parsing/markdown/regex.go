@@ -12,6 +12,10 @@ var (
 	headerSix   = `(?:^|\n)(#{6}\s)(.*)`
 )
 
+// TODO:
+// 1. Links
+// 2. Tables
+
 // Headers
 var (
 	h1Regex *regexp.Regexp

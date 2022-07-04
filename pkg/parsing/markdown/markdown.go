@@ -2,6 +2,8 @@ package markdown
 
 import (
 	"bufio"
+	"bytes"
+	"fmt"
 	"io"
 	"log"
 	"strings"
@@ -59,23 +61,27 @@ func (md *Parser) Parse() {
 			}
 		}()
 		sc := bufio.NewScanner(md.source)
+		var sb strings.Builder
 		for sc.Scan() {
-			// TODO: make this testable, break this out into a function
-			if h1Regex.Match(sc.Bytes()) {
-				text := strings.Split(sc.Text(), "#")[1]
-
-				text = strings.TrimSpace(text)
-				text = "<h1>" + text + "</h1>"
-
-				md.writer.Write([]byte(text + "\n"))
-			} else if h2Regex.Match(sc.Bytes()) {
-				text := strings.Split(sc.Text(), "##")[1]
-
-				text = strings.TrimSpace(text)
-				text = "<h2>" + text + "</h2>"
-
-				md.writer.Write([]byte(text + "\n"))
+			if len(bytes.TrimSpace(sc.Bytes())) == 0 {
+				if sb.Len() != 0 {
+					// We hit an empty space, convert the built string
+					fmt.Println(sb.String())
+					result := convert(sb.String())
+					// Reset it
+					sb.Reset()
+					// Write the result to our pipe writer
+					md.writer.Write(result)
+				}
+			} else {
+				// Keep writing
+				sb.Write(sc.Bytes())
 			}
+		}
+		if sb.Len() != 0 {
+			result := convert(sb.String())
+			sb.Reset()
+			md.writer.Write(result)
 		}
 	}()
 
