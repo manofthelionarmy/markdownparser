@@ -32,12 +32,9 @@ func TestChain(t *testing.T) {
 	require.NotEqual(t, trimProcessor.target, upperCase.source)
 	require.NotEqual(t, upperCase.target, lowerCase.source)
 	require.NotEqual(t, os.Stdout, lowerCase.target)
-	// require.Equal(t, os.Stdout, upperCase.target)
 }
 
 func testChainProcessors(t *testing.T) {
-	// pr, pw := io.Pipe()
-
 	f, err := os.Open("test.md")
 	require.NoError(t, err)
 
