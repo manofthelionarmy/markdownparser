@@ -27,29 +27,21 @@ func NewTrimProcessor(opts ...TrimProcessorOpts) *TrimProcessor {
 
 // Process implements Processor interface to run a preprocessor to clear empty space
 func (tp *TrimProcessor) Process() {
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	defer tp.wg.Done()
 
-		// PipeWriter needs to send close so that the reader doesn't block!!!
-		defer func() {
-			if _, ok := tp.target.(*io.PipeWriter); ok {
-				tp.target.(*io.PipeWriter).Close()
-			}
-		}()
-
-		sc := bufio.NewScanner(tp.source)
-		for sc.Scan() {
-			tp.target.Write(bytes.TrimSpace(sc.Bytes())) // why is this an issue?
-
-			tp.target.Write([]byte("\n"))
+	// PipeWriter needs to send close so that the reader doesn't block!!!
+	defer func() {
+		if _, ok := tp.target.(*io.PipeWriter); ok {
+			tp.target.(*io.PipeWriter).Close()
 		}
 	}()
 
-	// TODO: refactor and remove this
-	// goal is to do soemthing like go trimProcessor()
-	wg.Wait()
+	sc := bufio.NewScanner(tp.source)
+	for sc.Scan() {
+		tp.target.Write(bytes.TrimSpace(sc.Bytes())) // why is this an issue?
+
+		tp.target.Write([]byte("\n"))
+	}
 }
 
 // SetSource sets the io.reader

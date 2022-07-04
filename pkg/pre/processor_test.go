@@ -3,7 +3,6 @@ package pre
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"sync"
@@ -26,13 +25,13 @@ func TestChain(t *testing.T) {
 
 	trimProcessor := &TrimProcessor{}
 	upperCase := &upperCaseProcessor{}
-	// lowerCase := &lowerCaseProcessor{}
+	lowerCase := &lowerCaseProcessor{}
 
-	ChainProcessors(f, []Processor{trimProcessor, upperCase}...)
+	ChainProcessors(f, []Processor{trimProcessor, upperCase, lowerCase}...)
 	require.Equal(t, f, trimProcessor.source)
 	require.NotEqual(t, trimProcessor.target, upperCase.source)
-	// require.NotEqual(t, upperCase.target, lowerCase.source)
-	// require.Equal(t, os.Stdout, lowerCase.target)
+	require.NotEqual(t, upperCase.target, lowerCase.source)
+	require.NotEqual(t, os.Stdout, lowerCase.target)
 	// require.Equal(t, os.Stdout, upperCase.target)
 }
 
@@ -42,20 +41,13 @@ func testChainProcessors(t *testing.T) {
 	f, err := os.Open("test.md")
 	require.NoError(t, err)
 
-	trimProcessor := &TrimProcessor{}
-	upperCase := &upperCaseProcessor{}
-	lowerCase := &lowerCaseProcessor{}
+	wg := &sync.WaitGroup{}
+	trimProcessor := NewTrimProcessor(
+		WithWaitGroup(wg),
+	)
+	upperCase := &upperCaseProcessor{wg: wg}
+	lowerCase := &lowerCaseProcessor{wg: wg}
 
-	// lwPr, lwPw := io.Pipe()
-
-	// trimProcessor.source = f
-	// trimProcessor.target = pw
-
-	// upperCase.source = pr
-	// upperCase.target = lwPw
-
-	// lowerCase.source = lwPr
-	// lowerCase.target = os.Stdout
 	r := ChainProcessors(f, []Processor{trimProcessor, upperCase}...)
 
 	// After chain, we need one more pipe
@@ -63,24 +55,13 @@ func testChainProcessors(t *testing.T) {
 	lowerCase.source = r
 	lowerCase.target = lw
 
-	wg := sync.WaitGroup{}
 	wg.Add(4)
 
-	go func() {
-		defer wg.Done()
-		defer fmt.Println("chaining")
-		trimProcessor.Process()
-	}()
+	go trimProcessor.Process()
 
-	go func() {
-		defer wg.Done()
-		upperCase.Process()
-	}()
+	go upperCase.Process()
 
-	go func() {
-		defer wg.Done()
-		lowerCase.Process()
-	}()
+	go lowerCase.Process()
 
 	go func() {
 		defer wg.Done()
@@ -95,26 +76,22 @@ type upperCaseProcessor struct {
 	*io.PipeReader
 	target io.Writer
 	source io.Reader
+	wg     *sync.WaitGroup
 }
 
 func (u *upperCaseProcessor) Process() {
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-
-	go func() {
-		defer wg.Done()
-		defer func() {
-			if _, ok := u.target.(*io.PipeWriter); ok {
-				u.target.(*io.PipeWriter).Close()
-			}
-		}()
-		sc := bufio.NewScanner(u.source)
-		for sc.Scan() {
-			u.target.Write(bytes.ToUpper(sc.Bytes()))
-			u.target.Write([]byte("\n"))
+	defer u.wg.Done()
+	defer func() {
+		if _, ok := u.target.(*io.PipeWriter); ok {
+			u.target.(*io.PipeWriter).Close()
 		}
 	}()
-	wg.Wait()
+
+	sc := bufio.NewScanner(u.source)
+	for sc.Scan() {
+		u.target.Write(bytes.ToUpper(sc.Bytes()))
+		u.target.Write([]byte("\n"))
+	}
 }
 
 func (u *upperCaseProcessor) SetSource(r io.Reader) {
@@ -130,6 +107,7 @@ type lowerCaseProcessor struct {
 	*io.PipeReader
 	target io.Writer
 	source io.Reader
+	wg     *sync.WaitGroup
 }
 
 func newLowerCaseProcessor() *lowerCaseProcessor {
@@ -137,23 +115,17 @@ func newLowerCaseProcessor() *lowerCaseProcessor {
 }
 
 func (l *lowerCaseProcessor) Process() {
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-
-	go func() {
-		defer wg.Done()
-		defer func() {
-			if _, ok := l.target.(*io.PipeWriter); ok {
-				l.target.(*io.PipeWriter).Close()
-			}
-		}()
-		sc := bufio.NewScanner(l.source)
-		for sc.Scan() {
-			l.target.Write(bytes.ToLower(sc.Bytes()))
-			l.target.Write([]byte("\n"))
+	defer l.wg.Done()
+	defer func() {
+		if _, ok := l.target.(*io.PipeWriter); ok {
+			l.target.(*io.PipeWriter).Close()
 		}
 	}()
-	defer wg.Wait()
+	sc := bufio.NewScanner(l.source)
+	for sc.Scan() {
+		l.target.Write(bytes.ToLower(sc.Bytes()))
+		l.target.Write([]byte("\n"))
+	}
 }
 
 func (l *lowerCaseProcessor) SetSource(r io.Reader) {

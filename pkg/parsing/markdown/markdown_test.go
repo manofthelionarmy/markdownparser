@@ -31,7 +31,10 @@ func testPipeTrimToMarkDownParse(t *testing.T) {
 	require.NoError(t, err)
 	defer f.Close()
 
-	trimProcessor := pre.NewTrimProcessor()
+	wg := &sync.WaitGroup{}
+	trimProcessor := pre.NewTrimProcessor(
+		pre.WithWaitGroup(wg),
+	)
 
 	cfg := &Config{}
 
@@ -43,17 +46,10 @@ func testPipeTrimToMarkDownParse(t *testing.T) {
 		WithSource(f),
 		WithPreprocessor(trimProcessor),
 		WithTarget(bw),
+		WithWaitGroup(wg),
 	)
 
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-
-	go func() {
-		defer wg.Done()
-		markDownParser.Parse()
-	}()
-
-	wg.Wait()
+	markDownParser.Parse()
 	require.NotZero(t, bw.Len())
 	fmt.Println(bw.String())
 }

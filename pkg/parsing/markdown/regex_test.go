@@ -10,7 +10,7 @@ func TestMarkdownRegex(t *testing.T) {
 	for scenario, f := range map[string]func(*testing.T){
 		"testHeader1": testHeader1,
 		"testHeader2": testHeader2,
-		// "testHeader3": testHeader3,
+		// "testHeader3": testHeader3, // TODO: add back these tests
 		// "testHeader4": testHeader4,
 		// "testHeader5": testHeader5,
 		// "testHeader6": testHeader6,

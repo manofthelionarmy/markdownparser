@@ -21,12 +21,13 @@ func TestTrimPreProcessor(t *testing.T) {
 
 	bw := bytes.NewBuffer(make([]byte, 1024))
 
+	wg := &sync.WaitGroup{}
+
 	tp := NewTrimProcessor(
 		WithSource(f),
 		WithTarget(pw),
+		WithWaitGroup(wg),
 	)
-
-	wg := sync.WaitGroup{}
 
 	wg.Add(2)
 	go func() {
@@ -39,10 +40,8 @@ func TestTrimPreProcessor(t *testing.T) {
 			fmt.Println(sc.Text())
 		}
 	}()
-	go func() {
-		defer wg.Done()
-		tp.Process()
-	}()
+
+	go tp.Process()
 	wg.Wait()
 	require.NotZero(t, bw.Len())
 	fmt.Println(bw.String())

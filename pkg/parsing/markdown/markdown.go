@@ -18,7 +18,7 @@ type Config struct {
 // Parser is our markdown parser
 type Parser struct {
 	source        io.Reader
-	target        io.Writer
+	writer        io.Writer
 	mainTarget    io.Writer
 	preprocessors []pre.Processor
 	wg            *sync.WaitGroup
@@ -42,72 +42,58 @@ func (md *Parser) Parse() {
 	// need to set up the pipe for our parser
 	markDownPr, markDownWr := io.Pipe()
 	md.source = r // the source is the reader the last preprocessor writes to
-	md.mainTarget = md.target
-	md.target = markDownWr
-
-	wg := sync.WaitGroup{}
+	md.mainTarget = md.writer
+	md.writer = markDownWr
 
 	for _, p := range md.preprocessors {
-		wg.Add(1)
-		go func(p pre.Processor) {
-			defer wg.Done()
-			p.Process()
-		}(p)
+		md.wg.Add(1)
+		go p.Process()
 	}
 
-	wg.Add(2)
+	md.wg.Add(1)
 	go func() {
-		defer wg.Done()
+		defer md.wg.Done()
 		defer func() {
-			if _, ok := md.target.(*io.PipeWriter); ok {
-				md.target.(*io.PipeWriter).Close()
+			if _, ok := md.writer.(*io.PipeWriter); ok {
+				md.writer.(*io.PipeWriter).Close()
 			}
 		}()
 		sc := bufio.NewScanner(md.source)
 		for sc.Scan() {
+			// TODO: make this testable, break this out into a function
 			if h1Regex.Match(sc.Bytes()) {
 				text := strings.Split(sc.Text(), "#")[1]
 
 				text = strings.TrimSpace(text)
 				text = "<h1>" + text + "</h1>"
 
-				md.target.Write([]byte(text))
-				md.target.Write([]byte("\n"))
+				md.writer.Write([]byte(text + "\n"))
 			} else if h2Regex.Match(sc.Bytes()) {
 				text := strings.Split(sc.Text(), "##")[1]
 
 				text = strings.TrimSpace(text)
 				text = "<h2>" + text + "</h2>"
 
-				md.target.Write([]byte(text))
-				md.target.Write([]byte("\n"))
+				md.writer.Write([]byte(text + "\n"))
 			}
 		}
 	}()
 
+	md.wg.Add(1)
 	go func() {
-		defer wg.Done()
+		defer md.wg.Done()
 		if _, err := io.Copy(md.mainTarget, markDownPr); err != nil {
 			log.Fatal(err)
 		}
 	}()
-	wg.Wait()
+	md.wg.Wait()
 }
 
 // ParsingOpts is a function that sets specified behavior for our parser
 type ParsingOpts func(*Parser)
 
-// WithPipeWriter pipes our parser generated output to a target stream
-// func WithPipeWriter(w *io.PipeWriter) ParsingOpts {
-// 	return func(mp *Parser) {
-// 		mp.PipeWriter = w
-// 	}
-// }
-
 // WithSource sets the read half of a pipe
 func WithSource(r io.Reader) ParsingOpts {
-	// io.Reader differs from PipeReader
-	// we can do an io.copy of our scanner to the pipe reader?
 	return func(mp *Parser) {
 		mp.source = r
 	}
@@ -116,7 +102,7 @@ func WithSource(r io.Reader) ParsingOpts {
 // WithTarget sets the destination
 func WithTarget(w io.Writer) ParsingOpts {
 	return func(p *Parser) {
-		p.target = w
+		p.writer = w
 	}
 }
 
