@@ -13,7 +13,6 @@ func convert(b string) []byte {
 		text = strings.TrimSpace(text)
 		text = "<h1>" + text + "</h1>"
 
-		return []byte(text + "\n")
 	} else if h2Regex.MatchString(b) {
 		text = strings.Split(b, "##")[1]
 
@@ -45,12 +44,19 @@ func convert(b string) []byte {
 		linkAndAlt := httpRegex.FindString(b)
 		splits := strings.Split(linkAndAlt, "\"")
 		link := splits[0]
+		link = strings.TrimSpace(link)
 		if len(splits) == 1 {
+			// weird edge case
 			text = fmt.Sprintf("<a href=\"%s\">%s</a>", link[:len(link)-1], text[1:len(text)-1])
 		} else {
 			alt := splits[1]
-			text = fmt.Sprintf("<a href=\"%s\" alt=\"%s\">%s</a>", link[:len(link)-1], alt, text[1:len(text)-1])
+			text = fmt.Sprintf("<a href=\"%s\" alt=\"%s\">%s</a>", link, alt, text[1:len(text)-1])
 		}
+	} else if imageRegex.MatchString(b) {
+		imgTag := "<img src=\"%s\" alt=\"%s\"/>"
+		altText := imageAltRegex.FindString(b)
+		src := imagePathRegex.FindString(b)
+		text = fmt.Sprintf(imgTag, src[1:], strings.Trim(altText, "[]"))
 	} else {
 		text = "<p>" + b + "</p>"
 	}

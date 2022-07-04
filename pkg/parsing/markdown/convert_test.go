@@ -11,6 +11,7 @@ func TestConvert(t *testing.T) {
 		"testHeaders":   testHeaders,
 		"testParagraph": testParagraph,
 		"testLinks":     testLinks,
+		"testImages":    testImages,
 	} {
 		t.Run(scenario, f)
 	}
@@ -38,9 +39,26 @@ func testLinks(t *testing.T) {
 		"<a href=\"https://url.com\" alt=\"Optional Alt\">Link Text</a>\n",
 		string(convert("[Link Text](https://url.com \"Optional Alt\")")),
 	)
+
+	// A lot of space
+	require.Equal(t,
+		"<a href=\"https://url.com\" alt=\"Optional Alt\">Link Text</a>\n",
+		string(convert(`[Link Text](https://url.com          "Optional Alt")`)),
+	)
 	// No optional alt
 	require.Equal(t,
 		"<a href=\"https://url.com\">Link Text</a>\n",
 		string(convert("[Link Text](https://url.com)")),
+	)
+}
+
+func testImages(t *testing.T) {
+	require.Equal(t,
+		`<img src="path/to/img.png" alt="Alternative text"/>`+"\n",
+		string(convert(`![Alternative text](path/to/img.png "Text")`)),
+	)
+	require.Equal(t,
+		`<img src="/assets/img/MarineGEO_logo.png" alt="MarineGEO circle logo"/>`+"\n",
+		string(convert(`![MarineGEO circle logo](/assets/img/MarineGEO_logo.png "MarineGEO logo")`)),
 	)
 }

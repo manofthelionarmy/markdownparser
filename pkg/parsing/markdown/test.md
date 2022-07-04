@@ -8,4 +8,13 @@ and on and on. Until I reach the next heading.
 
 ### Heading 3
 
-[Link Text](https://url.com "Optional Alt")
+[Link Text](https://url.com     "Optional Alt")
+
+
+![MarineGEO circle logo](/assets/img/MarineGEO_logo.png "MarineGEO logo")
+
+MarineGEO circle logo
+Inserting Images using html
+
+Images can also be inserted on pages using the html <img> tag. One advantage of using the html tag is the ability to control size and other style elements.
+
