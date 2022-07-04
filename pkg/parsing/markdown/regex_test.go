@@ -14,6 +14,7 @@ func TestMarkdownRegex(t *testing.T) {
 		// "testHeader4": testHeader4,
 		// "testHeader5": testHeader5,
 		// "testHeader6": testHeader6,
+		"testLink": testLink,
 	} {
 		t.Run(scenario, f)
 	}
@@ -59,4 +60,8 @@ func testHeader6(t *testing.T) {
 	require.True(t, h6Regex.MatchString("# Header1"))
 	require.False(t, h6Regex.MatchString("## Header2"))
 	require.False(t, h6Regex.MatchString("gibberish"))
+}
+
+func testLink(t *testing.T) {
+	require.True(t, linkRegex.MatchString("[Link Text](https://url.com \"Optionl Alt\")"))
 }

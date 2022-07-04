@@ -4,17 +4,23 @@ import "regexp"
 
 // These regexp work best if we trim left and right
 var (
+	// Headers
 	headerOne   = `(?:^|\n)(#{1}\s)(.*)`
 	headerTwo   = `(?:^|\n)(#{2}\s)(.*)`
 	headerThree = `(?:^|\n)(#{3}\s)(.*)`
 	headerFour  = `(?:^|\n)(#{4}\s)(.*)`
 	headerFive  = `(?:^|\n)(#{5}\s)(.*)`
 	headerSix   = `(?:^|\n)(#{6}\s)(.*)`
+	link        = `(?:^|\n)(\[.*\])(\((http)(?:s)?(\:\/\/).*\))`
+	linkText    = `(\[.*\])`
+	httpText    = `((http)(?:s)?(\:\/\/).*)`
 )
 
 // TODO:
-// 1. Links
-// 2. Tables
+
+// 2. Images
+// 3. Unordered List
+// 4. Tables
 
 // Headers
 var (
@@ -24,6 +30,10 @@ var (
 	h4Regex *regexp.Regexp
 	h5Regex *regexp.Regexp
 	h6Regex *regexp.Regexp
+
+	linkRegex     *regexp.Regexp
+	linkTextRegex *regexp.Regexp
+	httpRegex     *regexp.Regexp
 )
 
 func init() {
@@ -33,4 +43,8 @@ func init() {
 	h4Regex = regexp.MustCompile(headerFour)
 	h5Regex = regexp.MustCompile(headerFive)
 	h6Regex = regexp.MustCompile(headerSix)
+
+	linkRegex = regexp.MustCompile(link)
+	linkTextRegex = regexp.MustCompile(linkText)
+	httpRegex = regexp.MustCompile(httpText)
 }

@@ -34,5 +34,13 @@ func testParagraph(t *testing.T) {
 }
 
 func testLinks(t *testing.T) {
-	t.Errorf("Implement test")
+	require.Equal(t,
+		"<a href=\"https://url.com\" alt=\"Optional Alt\">Link Text</a>\n",
+		string(convert("[Link Text](https://url.com \"Optional Alt\")")),
+	)
+	// No optional alt
+	require.Equal(t,
+		"<a href=\"https://url.com\">Link Text</a>\n",
+		string(convert("[Link Text](https://url.com)")),
+	)
 }
