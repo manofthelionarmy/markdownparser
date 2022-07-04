@@ -3,7 +3,6 @@ package markdown
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"io"
 	"log"
 	"strings"
@@ -66,7 +65,6 @@ func (md *Parser) Parse() {
 			if len(bytes.TrimSpace(sc.Bytes())) == 0 {
 				if sb.Len() != 0 {
 					// We hit an empty space, convert the built string
-					fmt.Println(sb.String())
 					result := convert(sb.String())
 					// Reset it
 					sb.Reset()
