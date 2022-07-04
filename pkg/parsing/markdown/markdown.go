@@ -46,6 +46,7 @@ func (md *Parser) Parse() {
 	md.mainTarget = md.writer
 	md.writer = markDownWr
 
+	// TODO: handle case where there's no preprocessors
 	for _, p := range md.preprocessors {
 		md.wg.Add(1)
 		go p.Process()

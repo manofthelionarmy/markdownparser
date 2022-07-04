@@ -8,10 +8,11 @@ import (
 
 func TestConvert(t *testing.T) {
 	for scenario, f := range map[string]func(*testing.T){
-		"testHeaders":   testHeaders,
-		"testParagraph": testParagraph,
-		"testLinks":     testLinks,
-		"testImages":    testImages,
+		"testHeaders":       testHeaders,
+		"testParagraph":     testParagraph,
+		"testLinks":         testLinks,
+		"testNestedLinks":   testNestedLinks,
+		"testHasNestedLink": testHasNestedLink,
 	} {
 		t.Run(scenario, f)
 	}
@@ -61,4 +62,19 @@ func testImages(t *testing.T) {
 		`<img src="/assets/img/MarineGEO_logo.png" alt="MarineGEO circle logo"/>`+"\n",
 		string(convert(`![MarineGEO circle logo](/assets/img/MarineGEO_logo.png "MarineGEO logo")`)),
 	)
+}
+
+func testNestedLinks(t *testing.T) {
+	require.Equal(t,
+		"<p>This has a nested <a href=\"https://url.com\" alt=\"Optional Alt\">Link Text</a></p>\n",
+		string(convert("This has a nested [Link Text](https://url.com \"Optional Alt\")")),
+	)
+	require.Equal(t,
+		"<h1>This has a nested <a href=\"https://url.com\" alt=\"Optional Alt\">Link Text</a></h1>\n",
+		string(convert("# This has a nested [Link Text](https://url.com \"Optional Alt\")")),
+	)
+}
+
+func testHasNestedLink(t *testing.T) {
+	require.True(t, hasNestedLink("This has a nested [Link Text](https://url.com \"Optional Alt\")"))
 }

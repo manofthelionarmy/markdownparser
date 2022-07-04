@@ -10,6 +10,9 @@ and on and on. Until I reach the next heading.
 
 [Link Text](https://url.com     "Optional Alt")
 
+This paragrah has a nested [Link Text](https://url.com "Optional Alt")
+
+# This heading has a nested [Link Text](https://url.com "Optional Alt") 
 
 ![MarineGEO circle logo](/assets/img/MarineGEO_logo.png "MarineGEO logo")
 

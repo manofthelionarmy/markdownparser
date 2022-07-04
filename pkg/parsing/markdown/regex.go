@@ -11,12 +11,13 @@ var (
 	headerFour   = `(?:^|\n)(#{4}\s)(.*)`
 	headerFive   = `(?:^|\n)(#{5}\s)(.*)`
 	headerSix    = `(?:^|\n)(#{6}\s)(.*)`
-	link         = `(?:^|\n)(\[.*\])(\((http)(?:s)?(\:\/\/).*\))`
+	strictLink   = `(?:^|\n)(\[.*\])(\((http)(?:s)?(\:\/\/).*\))`
+	link         = `(\[.*\])(\((http)(?:s)?(\:\/\/).*\))`
 	linkText     = `(\[.*\])`
 	httpText     = `((http)(?:s)?(\:\/\/).*)`
 	image        = `(?:^|\n)(\!)(\[(?:.*)?\])(\(.*(\.(jpg|png|gif|tiff|bmp))(?:(\s\"|\')(\w|\W|\d)+(\"|\'))?\))`
 	imageAltText = `(\[(?:.*)?\])`
-	imageFile    = `(\(.*(\.(jpg|png|gif|tiff|bmp)))`
+	imageFile    = `(\(.*(\.(jpg|png|gif|tiff|bmp))(?:(\s\"|\')(\w|\W|\d)+(\"|\'))?\))`
 )
 
 // TODO:
@@ -34,9 +35,10 @@ var (
 	h5Regex *regexp.Regexp
 	h6Regex *regexp.Regexp
 
-	linkRegex     *regexp.Regexp
-	linkTextRegex *regexp.Regexp
-	httpRegex     *regexp.Regexp
+	strictLinkRegex *regexp.Regexp
+	linkRegex       *regexp.Regexp
+	linkTextRegex   *regexp.Regexp
+	httpRegex       *regexp.Regexp
 
 	imageRegex     *regexp.Regexp
 	imageAltRegex  *regexp.Regexp
@@ -51,6 +53,7 @@ func init() {
 	h5Regex = regexp.MustCompile(headerFive)
 	h6Regex = regexp.MustCompile(headerSix)
 
+	strictLinkRegex = regexp.MustCompile(strictLink)
 	linkRegex = regexp.MustCompile(link)
 	linkTextRegex = regexp.MustCompile(linkText)
 	httpRegex = regexp.MustCompile(httpText)
