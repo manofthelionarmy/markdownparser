@@ -74,7 +74,7 @@ func (md *Parser) Parse() {
 				}
 			} else {
 				// Keep writing
-				sb.Write(sc.Bytes())
+				sb.Write([]byte(sc.Text() + "\n"))
 			}
 		}
 		if sb.Len() != 0 {

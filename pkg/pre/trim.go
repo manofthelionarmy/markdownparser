@@ -4,14 +4,16 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+	"regexp"
 	"sync"
 )
 
 // TrimProcessor trims left and right
 type TrimProcessor struct {
-	source io.Reader
-	target io.Writer
-	wg     *sync.WaitGroup
+	source   io.Reader
+	target   io.Writer
+	wg       *sync.WaitGroup
+	skipFunc SkipFunc
 }
 
 // NewTrimProcessor initializes our TrimProcessor
@@ -57,6 +59,9 @@ func (tp *TrimProcessor) SetTarget(w io.Writer) {
 // TrimProcessorOpts is options we pass to the initialization of our TrimProcessorOpts
 type TrimProcessorOpts func(*TrimProcessor)
 
+// SkipFunc is one that skips trimming
+type SkipFunc func(string) bool
+
 // WithSource sets our pipereader to our target
 func WithSource(r io.Reader) TrimProcessorOpts {
 	return func(tp *TrimProcessor) {
@@ -76,6 +81,16 @@ func WithWaitGroup(wg *sync.WaitGroup) TrimProcessorOpts {
 	return func(tp *TrimProcessor) {
 		tp.wg = wg
 	}
+}
+
+// WithSkip skips
+func WithSkip(r *regexp.Regexp) TrimProcessorOpts {
+	return func(tp *TrimProcessor) {
+		tp.skipFunc = func(s string) bool {
+			return r.MatchString(s)
+		}
+	}
+
 }
 
 // WithBufferSize sets the buffer size of our scanner

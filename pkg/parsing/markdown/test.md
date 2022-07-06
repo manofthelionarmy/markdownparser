@@ -21,3 +21,17 @@ Inserting Images using html
 
 Images can also be inserted on pages using the html <img> tag. One advantage of using the html tag is the ability to control size and other style elements.
 
+# Shopping List:
+
+* Fruits
+* Milk
+* Bread
+
+# Favorite websites:
+
+* [Pokemondb](https://pokemondb.net "Pokemondb")
+* [YouTube](https://youtube.com "YouTube")
+
+* List
+  * Nested list
+

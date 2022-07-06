@@ -13,6 +13,7 @@ func TestConvert(t *testing.T) {
 		"testLinks":         testLinks,
 		"testNestedLinks":   testNestedLinks,
 		"testHasNestedLink": testHasNestedLink,
+		"testUnorderedList": testUnorderedList,
 	} {
 		t.Run(scenario, f)
 	}
@@ -73,8 +74,39 @@ func testNestedLinks(t *testing.T) {
 		"<h1>This has a nested <a href=\"https://url.com\" alt=\"Optional Alt\">Link Text</a></h1>\n",
 		string(convert("# This has a nested [Link Text](https://url.com \"Optional Alt\")")),
 	)
+	markdownList := "* [Link Text](https://url.com \"Optional Alt\")\n"
+	markdownList = markdownList + markdownList + markdownList
+
+	listHTML := "<li><a href=\"https://url.com\" alt=\"Optional Alt\">Link Text</a></li>\n"
+	listHTML = "<ul>\n" + listHTML + listHTML + listHTML + "</ul>\n"
+	require.Equal(t,
+		listHTML,
+		string(convert(markdownList)),
+	)
 }
 
 func testHasNestedLink(t *testing.T) {
 	require.True(t, hasNestedLink("This has a nested [Link Text](https://url.com \"Optional Alt\")"))
+}
+
+func testUnorderedList(t *testing.T) {
+	markdownList := "* Fruits\n" + "* Milk\n" + "* Bread\n"
+
+	htmlList := "<ul>\n" +
+		"<li>Fruits</li>\n" +
+		"<li>Milk</li>\n" +
+		"<li>Bread</li>\n" +
+		"</ul>\n"
+
+	require.Equal(
+		t,
+		"<ul>\n"+"<li></li>\n"+"</ul>\n",
+		string(convert("* \n")),
+	)
+
+	require.Equal(
+		t,
+		htmlList,
+		string(convert(markdownList)),
+	)
 }
