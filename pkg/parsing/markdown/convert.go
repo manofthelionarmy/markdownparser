@@ -9,37 +9,36 @@ func convert(b string) []byte {
 	var text string
 	// need to refactor regex stuff
 	if h1Regex.MatchString(b) {
-		text = strings.Split(b, "#")[1]
-
+		text = headerFilterRegex.FindString(b)
 		text = strings.TrimSpace(text)
 		text = "<h1>" + text + "</h1>"
 		text = parseNestedLink(text)
 	} else if h2Regex.MatchString(b) {
-		text = strings.Split(b, "##")[1]
+		text = headerFilterRegex.FindString(b)
 
 		text = strings.TrimSpace(text)
 		text = "<h2>" + text + "</h2>"
 		text = parseNestedLink(text)
 	} else if h3Regex.MatchString(b) {
-		text = strings.Split(b, "###")[1]
+		text = headerFilterRegex.FindString(b)
 
 		text = strings.TrimSpace(text)
 		text = "<h3>" + text + "</h3>"
 		text = parseNestedLink(text)
 	} else if h4Regex.MatchString(b) {
-		text = strings.Split(b, "####")[1]
+		text = headerFilterRegex.FindString(b)
 
 		text = strings.TrimSpace(text)
 		text = "<h4>" + text + "</h4>"
 		text = parseNestedLink(text)
 	} else if h5Regex.MatchString(b) {
-		text = strings.Split(b, "#####")[1]
+		text = headerFilterRegex.FindString(b)
 
 		text = strings.TrimSpace(text)
 		text = "<h5>" + text + "</h5>"
 		text = parseNestedLink(text)
 	} else if h6Regex.MatchString(b) {
-		text = strings.Split(b, "######")[1]
+		text = headerFilterRegex.FindString(b)
 
 		text = strings.TrimSpace(text)
 		text = "<h6>" + text + "</h6>"
@@ -62,8 +61,8 @@ func convert(b string) []byte {
 			text = parseNestedLink(text)
 		}
 	} else {
-		text = parseNestedLink(b)
-		text = "<p>" + text + "</p>"
+		text = "<p>" + b + "</p>"
+		text = parseNestedLink(text)
 	}
 	return []byte(text + "\n")
 }

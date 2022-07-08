@@ -11,6 +11,7 @@ var (
 	headerFour    = `(?:^|\n)(#{4}\s)(.*)`
 	headerFive    = `(?:^|\n)(#{5}\s)(.*)`
 	headerSix     = `(?:^|\n)(#{6}\s)(.*)`
+	headerFilter  = `[^#\s].*`
 	strictLink    = `(?:^|\n)(\[.*\])(\((http)(?:s)?(\:\/\/).*\))`
 	link          = `(\[.*\])(\((http)(?:s)?(\:\/\/).*\))`
 	linkText      = `(\[.*\])`
@@ -30,6 +31,7 @@ var (
 	h4Regex            *regexp.Regexp
 	h5Regex            *regexp.Regexp
 	h6Regex            *regexp.Regexp
+	headerFilterRegex  *regexp.Regexp
 	strictLinkRegex    *regexp.Regexp
 	linkRegex          *regexp.Regexp
 	altTextRegex       *regexp.Regexp
@@ -48,6 +50,7 @@ func init() {
 	h4Regex = regexp.MustCompile(headerFour)
 	h5Regex = regexp.MustCompile(headerFive)
 	h6Regex = regexp.MustCompile(headerSix)
+	headerFilterRegex = regexp.MustCompile(headerFilter)
 
 	strictLinkRegex = regexp.MustCompile(strictLink)
 	linkRegex = regexp.MustCompile(link)
