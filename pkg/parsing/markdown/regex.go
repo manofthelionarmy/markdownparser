@@ -21,6 +21,7 @@ var (
 	imageAltText  = `(\[(?:.*)?\])`
 	imageFile     = `(\(.*(\.(jpg|png|gif|tiff|bmp))(?:(\s\"|\')(\w|\W|\d)+(\"|\'))?\))`
 	unorderedList = `(?:^|\t+|\n)(\*)(\s)(?:\w+|.*)((.*)(?:$)?)`
+	filterOutList = `\*\s.*`
 )
 
 // Headers
@@ -41,6 +42,7 @@ var (
 	imageAltRegex      *regexp.Regexp
 	imagePathRegex     *regexp.Regexp
 	unorderedListRegex *regexp.Regexp
+	listFilterRegex    *regexp.Regexp
 )
 
 func init() {
@@ -63,4 +65,5 @@ func init() {
 	imagePathRegex = regexp.MustCompile(imageFile)
 
 	unorderedListRegex = regexp.MustCompile(unorderedList)
+	listFilterRegex = regexp.MustCompile(filterOutList)
 }

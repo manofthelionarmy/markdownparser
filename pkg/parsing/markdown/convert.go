@@ -52,9 +52,12 @@ func convert(b string) []byte {
 		src := imagePathRegex.FindString(b)
 		text = fmt.Sprintf(imgTag, src[1:], strings.Trim(altText, "[]"))
 	} else if unorderedListRegex.MatchString(b) {
-		// I have an issue... what if we have something that is not a list underneath
-		text = strings.ReplaceAll(b, "* ", "<li>")
-		text = strings.ReplaceAll(text, "\n", "</li>\n")
+		text = listFilterRegex.ReplaceAllStringFunc(b, func(match string) string {
+			match = strings.Trim(match, "*")
+			match = strings.TrimSpace(match)
+			return "<li>" + match + "</li>"
+		})
+		// or we can construct a little tree?
 		text = "<ul>\n" + text + "</ul>"
 		// lists may have links!!!
 		for hasNestedLink(text) {
