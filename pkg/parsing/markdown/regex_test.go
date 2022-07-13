@@ -11,10 +11,7 @@ func TestMarkdownRegex(t *testing.T) {
 		"testHeader1": testHeader1,
 		"testHeader2": testHeader2,
 		"testHeader3": testHeader3, // TODO: add back these tests
-		// "testHeader4": testHeader4,
-		// "testHeader5": testHeader5,
-		// "testHeader6": testHeader6,
-		"testLink": testLink,
+		"testLink":    testLink,
 	} {
 		t.Run(scenario, f)
 	}
@@ -42,24 +39,6 @@ func testHeader3(t *testing.T) {
 	require.True(t, h3Regex.MatchString("### Header3"))
 	require.False(t, h3Regex.MatchString("## Header2"))
 	require.False(t, h3Regex.MatchString("gibberish"))
-}
-
-func testHeader4(t *testing.T) {
-	require.True(t, h4Regex.MatchString("# Header1"))
-	require.False(t, h4Regex.MatchString("## Header2"))
-	require.False(t, h4Regex.MatchString("gibberish"))
-}
-
-func testHeader5(t *testing.T) {
-	require.True(t, h5Regex.MatchString("# Header1"))
-	require.False(t, h5Regex.MatchString("## Header2"))
-	require.False(t, h5Regex.MatchString("gibberish"))
-}
-
-func testHeader6(t *testing.T) {
-	require.True(t, h6Regex.MatchString("# Header1"))
-	require.False(t, h6Regex.MatchString("## Header2"))
-	require.False(t, h6Regex.MatchString("gibberish"))
 }
 
 func testLink(t *testing.T) {
